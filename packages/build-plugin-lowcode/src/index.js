@@ -142,8 +142,8 @@ function getUsedComponentViews(rootDir, targetDir = 'lowcode', components) {
   }
   return components
     ? components.filter((component) => {
-        return viewPaths.includes(camel2KebabComponentName(component));
-      })
+      return viewPaths.includes(camel2KebabComponentName(component));
+    })
     : viewPaths.map((dir) => kebab2CamelComponentName(dir));
 }
 
@@ -167,6 +167,15 @@ function useStyleLoader(config) {
   scssModuleRule.use('style-loader').loader('style-loader').before('css-loader');
   lessRule.use('style-loader').loader('style-loader').before('css-loader');
   lessModuleRule.use('style-loader').loader('style-loader').before('css-loader');
+
+  config.module
+    .rule('mjs')
+    .test(/\.mjs$/)
+    .type('javascript/auto')
+    .include.add(/node_modules/)
+    .end();
+
+  config.node.set('fs', 'empty');
 }
 
 async function registerSetter(context, setterMap) {
@@ -292,7 +301,7 @@ async function build(options, pluginOptions, execCompile) {
     }),
   );
   const metaPathMap = {};
-  metaPaths.forEach((item) => {    
+  metaPaths.forEach((item) => {
     metaPathMap[path.basename(item).replace(path.extname(item), '')] = item;
     // metaPathMap[item.slice(item.lastIndexOf('/') + 1, item.lastIndexOf('.'))] = item;
   });
@@ -674,9 +683,8 @@ async function bundleMetaV2(options, pluginOptions, execCompile, metaType) {
         usedComponents.push(component);
       }
       metaJsPath = metaJsPath.replace(/\\/g, '\\\\')
-      return `import ${
-        component.includes('.') ? component.replace(/\./g, '') : component
-      }Meta from '${metaJsPath}'`;
+      return `import ${component.includes('.') ? component.replace(/\./g, '') : component
+        }Meta from '${metaJsPath}'`;
     })
     .join('\n');
   const metaPath = generateEntry({
@@ -773,17 +781,17 @@ async function bundleEditorView(
     library,
     urls: JSON.stringify(
       renderUrls ||
-        umdUrls || [
-          `${buildTarget}/${lowcodeDir}/view.js`,
-          `${buildTarget}/${lowcodeDir}/view.css`,
-        ],
+      umdUrls || [
+        `${buildTarget}/${lowcodeDir}/view.js`,
+        `${buildTarget}/${lowcodeDir}/view.css`,
+      ],
     ),
     editUrls: JSON.stringify(
       editUrls ||
-        umdUrls || [
-          `${buildTarget}/${lowcodeDir}/view.js`,
-          `${buildTarget}/${lowcodeDir}/view.css`,
-        ],
+      umdUrls || [
+        `${buildTarget}/${lowcodeDir}/view.js`,
+        `${buildTarget}/${lowcodeDir}/view.css`,
+      ],
     ),
     advancedRenderUrls: JSON.stringify(advancedRenderUrls),
     metaUrl: `${buildTarget}/${lowcodeDir}/meta.js`,
@@ -1207,9 +1215,8 @@ function updatePackage(
   const _baseUrl =
     (baseUrl && (isBetaVersion ? baseUrl.daily : baseUrl.prod)) ||
     `${UNPKG_BASE_URL_MAP[engineScope]}/${packageData.name}@${packageData.version}`;
-  componentConfig.materialSchema = `${_baseUrl}/${buildTarget}/${lowcodeDir}/assets-${
-    isBetaVersion ? 'daily' : 'prod'
-  }.json`;
+  componentConfig.materialSchema = `${_baseUrl}/${buildTarget}/${lowcodeDir}/assets-${isBetaVersion ? 'daily' : 'prod'
+    }.json`;
   packageData.componentConfig = componentConfig;
   packageData.lcMeta = {
     ...packageData.lcMeta,
@@ -1314,7 +1321,7 @@ async function bundleComponentMeta(webPackConfig, options, pluginOptions, execCo
           `${buildTarget}/${lowcodeDir}/${componentJsPath}.json`,
         );
         fse.outputFileSync(targetPath, JSON.stringify(require(originPath), null, 2));
-      } catch (e) {}
+      } catch (e) { }
     });
   });
 
